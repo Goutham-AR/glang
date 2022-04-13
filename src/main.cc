@@ -1,6 +1,6 @@
-#include <iostream>
+#include <fmt/format.h>
 
-auto main(int argv, char** argc) -> int {
-    std::cout << "Hello glang" << std::endl;
+int main(int argv, char** argc) {
+    fmt::print("Hello glang");
     return 0;
 }

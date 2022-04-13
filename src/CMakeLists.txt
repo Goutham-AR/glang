@@ -6,3 +6,10 @@ add_executable(
         ${SRC_FILES}
         ${HEADER_FILES}
 )
+
+
+target_link_libraries(
+    glang
+    PRIVATE
+        fmt
+)
