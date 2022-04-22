@@ -1,5 +1,24 @@
-set(SRC_FILES main.cc)
-set(HEADER_FILES)
+set(
+    SRC_FILES 
+        main.cc
+        ByteCode.cc
+        Value.cc
+
+        debug.cc
+)
+
+
+set(
+    HEADER_FILES
+        log.hh
+	    common.hh
+        ByteCode.hh
+        Value.hh
+
+
+        
+        debug.hh
+)
 
 add_executable(
     glang
