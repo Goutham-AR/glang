@@ -11,7 +11,7 @@ static int simpleInstr(const char* name, int offset) {
 
 static int constantInstruction(const ByteCode& code, int offset) {
     auto constantOffset = toU8(code.getOpCode(offset + 1));
-    auto constant = code.getConstant(offset + 1);
+    auto constant = code.getConstantAtOffset(constantOffset);
     fmt::print("Constant {} [{}]\n", constantOffset, valueToString(constant));
 
     return offset + 2;
@@ -34,6 +34,17 @@ int disassembleInstruction(const ByteCode& code, int offset) {
         return simpleInstr("Return", offset);
     case OpCode::Constant:
         return constantInstruction(code, offset);
+    case OpCode::Negate:
+        return simpleInstr("Negate", offset);
+    case OpCode::Add:
+        return simpleInstr("Add", offset);
+    case OpCode::Subtract:
+        return simpleInstr("Subtract", offset);
+    case OpCode::Multiply:
+        return simpleInstr("Multiply", offset);
+    case OpCode::Divide:
+        return simpleInstr("Divide", offset);
+
     default:
         fmt::print("unknown opcode\n");
         return offset + 1;
