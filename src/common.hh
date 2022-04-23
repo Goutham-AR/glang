@@ -9,3 +9,5 @@
 
 using u8 = std::uint8_t;
 using size = std::size_t;
+
+#define TRACE_VM_EXECUTION

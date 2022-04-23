@@ -3,6 +3,7 @@ set(
         main.cc
         ByteCode.cc
         Value.cc
+        Vm.cc
 
         debug.cc
 )
@@ -14,7 +15,7 @@ set(
 	    common.hh
         ByteCode.hh
         Value.hh
-
+        Vm.hh
 
         
         debug.hh
