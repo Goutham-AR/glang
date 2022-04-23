@@ -2,7 +2,7 @@ Checks:
     '*,
     
     -android-*,
-    
+    -altera-unroll-loops,    
     -bugprone-bool-pointer-implicit-conversion,-bugprone-exception-escape,-bugprone-infinite-loop,
     
     -cert-dcl16-c,-cert-dcl37-c,-cert-fio38-c,-cert-msc30-c,-cert-msc32-c,-cert-pos44-c,-cert-env33-c,
