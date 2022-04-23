@@ -28,12 +28,9 @@ size ByteCode::writeValue(Value value) {
     return constants_.size() - 1;
 }
 
-Value ByteCode::getConstant(int offset) const {
-    assert(offset >= 0);
-    auto constantOffset = getByte(offset);
-    return constants_[constantOffset];
+Value ByteCode::getConstantAtOffset(int offset) const {
+    return constants_[offset];
 }
-
 int ByteCode::getLineNumber(int offset) const {
     return lineNumbers_[offset];
 }
