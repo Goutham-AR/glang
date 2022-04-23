@@ -5,11 +5,7 @@
 
 #define STACK_MAX 256
 
-enum class Result {
-    Ok,
-    CompileError,
-    RuntimeError
-};
+Result interpret(const std::string& code);
 
 class GlangVm {
 public:

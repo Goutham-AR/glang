@@ -4,6 +4,7 @@ set(
         ByteCode.cc
         Value.cc
         Vm.cc
+        Scanner.cc
 
         debug.cc
 )
@@ -16,7 +17,10 @@ set(
         ByteCode.hh
         Value.hh
         Vm.hh
-
+        repl.hh
+        utils.hh
+        compiler.hh
+        Scanner.hh
         
         debug.hh
 )

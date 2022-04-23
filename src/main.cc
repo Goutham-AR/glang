@@ -2,20 +2,28 @@
 #include "ByteCode.hh"
 #include "debug.hh"
 #include "Vm.hh"
+#include "repl.hh"
+#include "utils.hh"
 
-int main(int argv, char** argc) {
-    ByteCode code;
+void runFile(const char* filename) {
+    auto sourceCode = utils::readTextFile(filename);
+    sourceCode.push_back('\0');
+    auto result = interpret(sourceCode);
 
-    code.writeConstantInstr(23.4, 2);
-    code.writeConstantInstr(3, 12);
-    code.writeOpCode(OpCode::Multiply, 13);
-    code.writeOpCode(OpCode::Negate, 12);
-    code.writeOpCode(OpCode::Return, 1);
+    if (result == Result::CompileError) std::exit(65);
+    if (result == Result::RuntimeError) std::exit(70);
+}
 
-    GlangVm vMachine{code};
-    vMachine.interpret();
+int main(int argc, char** argv) {
 
-    // debug::disassembleByteCode(code);
+    if (argc == 1) {
+        repl();
+    } else if (argc == 2) {
+        runFile(argv[1]);
+    } else {
+        fmt::print("Usage: glang [path]");
+        return 64;
+    }
 
     return 0;
 }

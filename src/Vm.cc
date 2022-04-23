@@ -1,5 +1,12 @@
 #include "Vm.hh"
 #include "debug.hh"
+#include "compiler.hh"
+
+Result interpret(const std::string& code) {
+    compile(code);
+    // fmt::print("{}\n", code);
+    return Result::Ok;
+}
 
 #define BINARY_OP(op)              \
     do {                           \
