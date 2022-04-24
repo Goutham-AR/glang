@@ -44,6 +44,20 @@ int disassembleInstruction(const ByteCode& code, int offset) {
         return simpleInstr("Multiply", offset);
     case OpCode::Divide:
         return simpleInstr("Divide", offset);
+    case OpCode::Nil:
+        return simpleInstr("Nil", offset);
+    case OpCode::False:
+        return simpleInstr("False", offset);
+    case OpCode::True:
+        return simpleInstr("True", offset);
+    case OpCode::Not:
+        return simpleInstr("Not", offset);
+    case OpCode::Equal:
+        return simpleInstr("Equal", offset);
+    case OpCode::Greater:
+        return simpleInstr("Greater", offset);
+    case OpCode::Less:
+        return simpleInstr("Less", offset);
 
     default:
         fmt::print("unknown opcode\n");

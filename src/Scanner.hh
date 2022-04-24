@@ -4,8 +4,6 @@
 #include <string_view>
 
 enum TokenType {
-    TokenEof,
-    TokenError,
 
     // single char
     TokenLeftParen,
@@ -51,7 +49,10 @@ enum TokenType {
     TokenThis,
     TokenTrue,
     TokenDef,
-    TokenWhile
+    TokenWhile,
+
+    TokenEof,
+    TokenError,
 
 };
 

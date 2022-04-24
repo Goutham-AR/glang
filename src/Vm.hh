@@ -26,6 +26,10 @@ private:
 
     void pushToStack(Value value);
     Value popFromStack();
+    Value peekStack(int distance);
+    void printStack();
+
+    void runtimeError(std::string_view msg);
 
 private:
     ByteCode code_;

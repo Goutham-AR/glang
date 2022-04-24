@@ -5,5 +5,15 @@ void printValue(Value value) {
 }
 
 std::string valueToString(Value value) {
-    return fmt::format("{}", value);
+
+    switch (value.type) {
+    case ValNumber:
+        return fmt::format("{}", AS_NUMBER(value));
+    case ValBool:
+        return fmt::format("{}", AS_BOOL(value) ? "True" : "False");
+    case ValNil:
+        return fmt::format("Nil");
+    }
+
+    // return fmt::format("{}", value);
 }

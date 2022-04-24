@@ -9,7 +9,14 @@ enum class OpCode : std::uint8_t {
     Add,
     Subtract,
     Multiply,
-    Divide
+    Divide,
+    Nil,
+    True,
+    False,
+    Not,
+    Equal,
+    Greater,
+    Less
 };
 
 inline std::uint8_t toU8(OpCode code) { return static_cast<std::uint8_t>(code); }

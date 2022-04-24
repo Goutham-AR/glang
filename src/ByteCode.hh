@@ -28,10 +28,10 @@ public:
     [[nodiscard]] size codeSize() const { return code_.size(); }
     [[nodiscard]] OpCode getOpCode(int offset) const;
 
-private:
     void writeByte(u8 byte, int lineNumber);
     size writeValue(Value value);
 
+private:
     [[nodiscard]] u8 getByte(int offset) const;
 
 private:

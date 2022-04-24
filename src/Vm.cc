@@ -3,16 +3,48 @@
 #include "compiler.hh"
 
 Result interpret(const std::string& code) {
-    compile(code);
+    ByteCode byteCode;
+
+    if (!compile(code, byteCode)) {
+        return Result::CompileError;
+    }
+
+    GlangVm vMachine{byteCode};
+
+    auto result = vMachine.interpret();
+
     // fmt::print("{}\n", code);
-    return Result::Ok;
+    return result;
 }
 
-#define BINARY_OP(op)              \
-    do {                           \
-        auto op2 = popFromStack(); \
-        auto op1 = popFromStack(); \
-        pushToStack(op1 op op2);   \
+static bool isFalsey(Value value) {
+    return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+}
+
+static bool valuesEqual(Value a, Value b) {
+    if (a.type != b.type) return false;
+
+    switch (a.type) {
+    case ValBool:
+        return AS_BOOL(a) == AS_BOOL(b);
+    case ValNil:
+        return true;
+    case ValNumber:
+        return AS_NUMBER(a) == AS_NUMBER(b);
+    default:
+        return false;
+    }
+}
+
+#define BINARY_OP(valueType, op)                                    \
+    do {                                                            \
+        if (!IS_NUMBER(peekStack(0)) || !IS_NUMBER(peekStack(1))) { \
+            runtimeError("Operands must be numbers");               \
+            return Result::RuntimeError;                            \
+        }                                                           \
+        double op2 = AS_NUMBER(popFromStack());                     \
+        double op1 = AS_NUMBER(popFromStack());                     \
+        pushToStack(valueType(op1 op op2));                         \
     } while (false)
 
 GlangVm::GlangVm(const ByteCode& code)
@@ -38,14 +70,13 @@ Result GlangVm::interpret(const ByteCode& code) {
 }
 
 Result GlangVm::run() {
-    while (true) {
-
 #ifdef TRACE_VM_EXECUTION
-        fmt::print("Stack: [");
-        for (auto slot = stack_; slot < stackTop_; ++slot) {
-            fmt::print(" {} ", valueToString(*slot));
-        }
-        fmt::print("]\n");
+    fmt::print("==== Tracing execution ====\n");
+#endif
+
+    while (true) {
+#ifdef TRACE_VM_EXECUTION
+        printStack();
         debug::disassembleInstruction(code_, static_cast<int>(iPtr_ - code_.code_.data()));
 #endif
 
@@ -68,28 +99,60 @@ Result GlangVm::run() {
         }
 
         case OpCode::Negate: {
-            pushToStack(-popFromStack());
+            if (!IS_NUMBER(peekStack(0))) {
+                runtimeError("Operand must be a number");
+                return Result::RuntimeError;
+            }
+
+            pushToStack(NUMBER_VAL(-AS_NUMBER(popFromStack())));
             break;
         }
 
         case OpCode::Add: {
-            BINARY_OP(+);
+            BINARY_OP(NUMBER_VAL, +);
             break;
         }
         case OpCode::Subtract: {
-            BINARY_OP(-);
+            BINARY_OP(NUMBER_VAL, -);
             break;
         }
 
         case OpCode::Multiply: {
-            BINARY_OP(*);
+            BINARY_OP(NUMBER_VAL, *);
             break;
         }
 
         case OpCode::Divide: {
-            BINARY_OP(/);
+            BINARY_OP(NUMBER_VAL, /);
             break;
         }
+
+        case OpCode::Nil:
+            pushToStack(NIL_VAL());
+            break;
+        case OpCode::True:
+            pushToStack(BOOL_VAL(true));
+            break;
+        case OpCode::False:
+            pushToStack(BOOL_VAL(false));
+            break;
+        case OpCode::Not:
+            pushToStack(BOOL_VAL(isFalsey(popFromStack())));
+            break;
+
+        case OpCode::Equal: {
+            Value b = popFromStack();
+            Value a = popFromStack();
+            pushToStack(BOOL_VAL(valuesEqual(a, b)));
+            break;
+        }
+
+        case OpCode::Greater:
+            BINARY_OP(BOOL_VAL, >);
+            break;
+        case OpCode::Less:
+            BINARY_OP(BOOL_VAL, <);
+            break;
         }
     }
 }
@@ -115,6 +178,25 @@ void GlangVm::pushToStack(Value value) {
 Value GlangVm::popFromStack() {
     --stackTop_;
     return *stackTop_;
+}
+Value GlangVm::peekStack(int distance) {
+    return stackTop_[-1 - distance];
+}
+
+void GlangVm::printStack() {
+    fmt::print("Stack: [");
+    for (auto slot = stack_; slot < stackTop_; ++slot) {
+        fmt::print(" {} ", valueToString(*slot));
+    }
+    fmt::print("]\n");
+}
+
+void GlangVm::runtimeError(std::string_view msg) {
+
+    fmt::print("{}\n", msg);
+    size_t instruction = iPtr_ - code_.code_.data() - 1;
+    auto line = code_.lineNumbers_[instruction];
+    fmt::print("[line {}] in script\n", line);
 }
 
 #undef BINARY_OP
