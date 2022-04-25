@@ -1,5 +1,6 @@
 #include "Parser.hh"
 #include "ByteCode.hh"
+#include "object.hh"
 
 // clang-format off
 ParseRule Parser::rules_[] = {
@@ -23,7 +24,7 @@ ParseRule Parser::rules_[] = {
     [TokenLess]         = {nullptr, &Parser::binary, Precedence::Comparison},
     [TokenLessEqual]    = {nullptr, &Parser::binary, Precedence::Comparison},
     [TokenIdentifier]   = {nullptr, nullptr, Precedence::None},
-    [TokenString]       = {nullptr, nullptr, Precedence::None},
+    [TokenString]       = {&Parser::string, nullptr, Precedence::None},
     [TokenNumber]       = {&Parser::number, nullptr, Precedence::None},
     [TokenAnd]          = {nullptr, nullptr, Precedence::None},
     [TokenClass]        = {nullptr, nullptr, Precedence::None},
@@ -239,4 +240,8 @@ void Parser::binary() {
     default:
         return;
     }
+}
+
+void Parser::string() {
+    emitConstant(OBJ_VAL(copyString(previous_.name.data() + 1, previous_.name.length() - 2)));
 }

@@ -1,6 +1,8 @@
 #include "Vm.hh"
 #include "debug.hh"
 #include "compiler.hh"
+#include "object.hh"
+#include "memory.hh"
 
 Result interpret(const std::string& code) {
     ByteCode byteCode;
@@ -19,21 +21,6 @@ Result interpret(const std::string& code) {
 
 static bool isFalsey(Value value) {
     return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
-}
-
-static bool valuesEqual(Value a, Value b) {
-    if (a.type != b.type) return false;
-
-    switch (a.type) {
-    case ValBool:
-        return AS_BOOL(a) == AS_BOOL(b);
-    case ValNil:
-        return true;
-    case ValNumber:
-        return AS_NUMBER(a) == AS_NUMBER(b);
-    default:
-        return false;
-    }
 }
 
 #define BINARY_OP(valueType, op)                                    \
@@ -109,7 +96,16 @@ Result GlangVm::run() {
         }
 
         case OpCode::Add: {
-            BINARY_OP(NUMBER_VAL, +);
+            if (IS_STRING(peekStack(0)) && IS_STRING(peekStack(1))) {
+                concatenate();
+            } else if (IS_NUMBER(peekStack(0)) && IS_NUMBER(peekStack(1))) {
+                double b = AS_NUMBER(popFromStack());
+                double a = AS_NUMBER(popFromStack());
+                pushToStack(NUMBER_VAL(a + b));
+            } else {
+                runtimeError("Operands must be two numbers or two strings");
+                return Result::RuntimeError;
+            }
             break;
         }
         case OpCode::Subtract: {
@@ -197,6 +193,20 @@ void GlangVm::runtimeError(std::string_view msg) {
     size_t instruction = iPtr_ - code_.code_.data() - 1;
     auto line = code_.lineNumbers_[instruction];
     fmt::print("[line {}] in script\n", line);
+}
+
+void GlangVm::concatenate() {
+    ObjString* b = AS_STRING(popFromStack());
+    ObjString* a = AS_STRING(popFromStack());
+
+    auto length = a->length + b->length;
+    char* chars = ALLOCATE(char, length + 1);
+    std::memcpy(chars, a->chars, a->length);
+    std::memcpy(chars + a->length, b->chars, b->length);
+    chars[length] = '\0';
+
+    ObjString* result = takeString(chars, length);
+    pushToStack(OBJ_VAL(result));
 }
 
 #undef BINARY_OP

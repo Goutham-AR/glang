@@ -7,6 +7,8 @@ set(
         compiler.cc
         Scanner.cc
         Parser.cc
+        object.cc
+        memory.cc
 
         debug.cc
 )
@@ -24,7 +26,9 @@ set(
         compiler.hh
         Scanner.hh
         Parser.hh
-        
+        object.hh
+        memory.hh
+
         debug.hh
 )
 

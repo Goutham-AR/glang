@@ -73,6 +73,7 @@ public:
     void parsePrecedence(Precedence precedence);
     void binary();
     void literal();
+    void string();
 
 private:
     Scanner& scanner_;

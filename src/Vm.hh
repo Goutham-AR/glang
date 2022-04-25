@@ -29,6 +29,8 @@ private:
     Value peekStack(int distance);
     void printStack();
 
+    void concatenate();
+
     void runtimeError(std::string_view msg);
 
 private:
