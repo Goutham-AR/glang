@@ -1,8 +1,8 @@
 #include "object.hh"
 #include "memory.hh"
 
-#define ALLOCATE_OBJ(type, objType) \
-    (type*)allocateObject(sizeof(type), objType)
+// #define ALLOCATE_OBJ(type, objType) \
+//     (type*)allocateObject(sizeof(type), objType)
 
 static Obj* allocateObject(size_t size, ObjType type) {
     Obj* object = (Obj*)reallocate(nullptr, 0, size);
@@ -10,8 +10,14 @@ static Obj* allocateObject(size_t size, ObjType type) {
     return object;
 }
 
+template <typename T>
+inline T* allocateObj(ObjType type) {
+    return (T*)allocateObject(sizeof(T), type);
+}
+
 static ObjString* allocateString(char* chars, int length) {
-    ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING);
+    auto string = allocateObj<ObjString>(OBJ_STRING);
+
     string->length = length;
     string->chars = chars;
 
@@ -27,9 +33,9 @@ ObjString* copyString(const char* chars, int length) {
 }
 
 std::string objectToString(Value value) {
-    switch (OBJ_TYPE(value)) {
+    switch (object::objType(value)) {
     case OBJ_STRING:
-        return fmt::format("{}", AS_CSTRING(value));
+        return fmt::format("{}", object::asCString(value));
         break;
     }
 }

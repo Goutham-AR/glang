@@ -10,14 +10,14 @@ bool valuesEqual(Value a, Value b) {
 
     switch (a.type) {
     case ValBool:
-        return AS_BOOL(a) == AS_BOOL(b);
+        return value::asBool(a) == value::asBool(b);
     case ValNil:
         return true;
     case ValNumber:
-        return AS_NUMBER(a) == AS_NUMBER(b);
+        return value::asNumber(a) == value::asNumber(b);
     case ValObj: {
-        ObjString* aString = AS_STRING(a);
-        ObjString* bString = AS_STRING(b);
+        ObjString* aString = object::asString(a);
+        ObjString* bString = object::asString(b);
         return aString->length == bString->length && std::memcmp(aString->chars, bString->chars, aString->length) == 0;
     }
 
@@ -30,9 +30,9 @@ std::string valueToString(Value value) {
 
     switch (value.type) {
     case ValNumber:
-        return fmt::format("{}", AS_NUMBER(value));
+        return fmt::format("{}", value::asNumber(value));
     case ValBool:
-        return fmt::format("{}", AS_BOOL(value) ? "True" : "False");
+        return fmt::format("{}", value::asBool(value) ? "True" : "False");
     case ValNil:
         return fmt::format("Nil");
     case ValObj:

@@ -17,15 +17,16 @@ struct ObjString {
     char* chars;
 };
 
-#define OBJ_TYPE(value) (AS_OBJ(value)->type)
-
-#define IS_STRING(value) isObjType(value, OBJ_STRING)
-
-#define AS_STRING(value) ((ObjString*)AS_OBJ(value))
-#define AS_CSTRING(value) (((ObjString*)AS_OBJ(value))->chars)
-
 static inline bool isObjType(Value value, ObjType type) {
-    return IS_OBJ(value) && AS_OBJ(value)->type == type;
+    return value::isObj(value) && value::asObj(value)->type == type;
+}
+
+namespace object {
+inline ObjType objType(Value value) { return value::asObj(value)->type; }
+inline bool isString(Value value) { return isObjType(value, OBJ_STRING); }
+inline ObjString* asString(Value value) { return (ObjString*)value::asObj(value); }
+inline char* asCString(Value value) { return ((ObjString*)value::asObj(value))->chars; }
+
 }
 
 ObjString* copyString(const char* chars, int length);

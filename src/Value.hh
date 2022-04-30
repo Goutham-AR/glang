@@ -27,16 +27,21 @@ void printValue(Value value);
 std::string valueToString(Value value);
 bool valuesEqual(Value a, Value b);
 
-#define AS_BOOL(value) ((value).as.boolean)
-#define AS_NUMBER(value) ((value).as.number)
-#define AS_OBJ(value) ((value).as.obj)
+namespace value {
+inline bool asBool(Value value) { return value.as.boolean; }
+inline double asNumber(Value value) { return value.as.number; }
+inline Obj* asObj(Value value) { return value.as.obj; }
 
-#define IS_BOOL(value) ((value).type == ValBool)
-#define IS_NIL(value) ((value).type == ValNil)
-#define IS_NUMBER(value) ((value).type == ValNumber)
-#define IS_OBJ(value) ((value).type == ValObj)
+inline bool isBool(Value value) { return value.type == ValBool; }
+inline bool isNil(Value value) { return value.type == ValNil; }
+inline bool isNumber(Value value) { return value.type == ValNumber; }
+inline bool isObj(Value value) { return value.type == ValObj; }
 
-#define BOOL_VAL(value) ((Value){ValBool, {.boolean = (value)}})
-#define NIL_VAL() ((Value){ValNil, {.number = 0}})
-#define NUMBER_VAL(value) ((Value){ValNumber, {.number = (value)}})
-#define OBJ_VAL(object) ((Value){ValObj, {.obj = (Obj*)(object)}})
+inline Value boolValue(bool value) { return Value{.type = ValBool, .as{.boolean = value}}; }
+inline Value nilValue() { return Value{.type = ValNil, .as{.number = 0}}; }
+inline Value numberValue(double value) { return Value{.type = ValNumber, .as{.number = value}}; }
+
+template <typename T>
+inline Value objValue(T* object) { return Value{.type = ValObj, .as{.obj = (Obj*)object}}; }
+
+}

@@ -142,7 +142,7 @@ void Parser::expression() {
 
 void Parser::number() {
     double value = strtod(previous_.name.data(), nullptr);
-    emitConstant(NUMBER_VAL(value));
+    emitConstant(value::numberValue(value));
 }
 
 void Parser::grouping() {
@@ -243,5 +243,5 @@ void Parser::binary() {
 }
 
 void Parser::string() {
-    emitConstant(OBJ_VAL(copyString(previous_.name.data() + 1, previous_.name.length() - 2)));
+    emitConstant(value::objValue(copyString(previous_.name.data() + 1, previous_.name.length() - 2)));
 }
