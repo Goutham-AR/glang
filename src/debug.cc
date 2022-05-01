@@ -12,7 +12,7 @@ static int simpleInstr(const char* name, int offset) {
 static int constantInstruction(const ByteCode& code, int offset) {
     auto constantOffset = toU8(code.getOpCode(offset + 1));
     auto constant = code.getConstantAtOffset(constantOffset);
-    fmt::print("Constant {} [{}]\n", constantOffset, valueToString(constant));
+    fmt::print("Constant {} [{}]\n", constantOffset, constant.toString());
 
     return offset + 2;
 }

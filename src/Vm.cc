@@ -20,18 +20,18 @@ Result interpret(const std::string& code) {
 }
 
 static bool isFalsey(Value value) {
-    return value::isNil(value) || (value::isBool(value) && !value::asBool(value));
+    return value.isNil() || (value.isBool() && !value.asBool());
 }
 
-#define BINARY_OP(valueType, op)                                                \
-    do {                                                                        \
-        if (!value::isNumber(peekStack(0)) || !value::isNumber(peekStack(1))) { \
-            runtimeError("Operands must be numbers");                           \
-            return Result::RuntimeError;                                        \
-        }                                                                       \
-        double op2 = value::asNumber(popFromStack());                           \
-        double op1 = value::asNumber(popFromStack());                           \
-        pushToStack(valueType(op1 op op2));                                     \
+#define BINARY_OP(valueType, op)                                    \
+    do {                                                            \
+        if (!peekStack(0).isNumber() || !peekStack(1).isNumber()) { \
+            runtimeError("Operands must be numbers");               \
+            return Result::RuntimeError;                            \
+        }                                                           \
+        double op2 = popFromStack().asNumber();                     \
+        double op1 = popFromStack().asNumber();                     \
+        pushToStack(valueType(op1 op op2));                         \
     } while (false)
 
 GlangVm::GlangVm(const ByteCode& code)
@@ -74,7 +74,7 @@ Result GlangVm::run() {
         switch (instruction) {
 
         case OpCode::Return: {
-            printValue(popFromStack());
+            popFromStack().print();
             fmt::print("\n");
             return Result::Ok;
         }
@@ -86,22 +86,22 @@ Result GlangVm::run() {
         }
 
         case OpCode::Negate: {
-            if (!value::isNumber(peekStack(0))) {
+            if (peekStack(0).isNumber()) {
                 runtimeError("Operand must be a number");
                 return Result::RuntimeError;
             }
 
-            pushToStack(value::numberValue(-value::asNumber(popFromStack())));
+            pushToStack(Value::createNumber(-(popFromStack().asNumber())));
             break;
         }
 
         case OpCode::Add: {
             if (object::isString(peekStack(0)) && object::isString(peekStack(1))) {
                 concatenate();
-            } else if (value::isNumber(peekStack(0)) && value::isNumber(peekStack(1))) {
-                double b = value::asNumber(popFromStack());
-                double a = value::asNumber(popFromStack());
-                pushToStack(value::numberValue(a + b));
+            } else if (peekStack(0).isNumber() && peekStack(1).isNumber()) {
+                double b = popFromStack().asNumber();
+                double a = popFromStack().asNumber();
+                pushToStack(Value::createNumber(a + b));
             } else {
                 runtimeError("Operands must be two numbers or two strings");
                 return Result::RuntimeError;
@@ -109,45 +109,45 @@ Result GlangVm::run() {
             break;
         }
         case OpCode::Subtract: {
-            BINARY_OP(value::numberValue, -);
+            BINARY_OP(Value::createNumber, -);
             break;
         }
 
         case OpCode::Multiply: {
-            BINARY_OP(value::numberValue, *);
+            BINARY_OP(Value::createNumber, *);
             break;
         }
 
         case OpCode::Divide: {
-            BINARY_OP(value::numberValue, /);
+            BINARY_OP(Value::createNumber, /);
             break;
         }
 
         case OpCode::Nil:
-            pushToStack(value::nilValue());
+            pushToStack(Value::createNil());
             break;
         case OpCode::True:
-            pushToStack(value::boolValue(true));
+            pushToStack(Value::createBool(true));
             break;
         case OpCode::False:
-            pushToStack(value::boolValue(false));
+            pushToStack(Value::createBool(false));
             break;
         case OpCode::Not:
-            pushToStack(value::boolValue(isFalsey(popFromStack())));
+            pushToStack(Value::createBool(isFalsey(popFromStack())));
             break;
 
         case OpCode::Equal: {
             Value b = popFromStack();
             Value a = popFromStack();
-            pushToStack(value::boolValue(valuesEqual(a, b)));
+            pushToStack(Value::createBool(Value::equal(a, b)));
             break;
         }
 
         case OpCode::Greater:
-            BINARY_OP(value::boolValue, >);
+            BINARY_OP(Value::createBool, >);
             break;
         case OpCode::Less:
-            BINARY_OP(value::boolValue, <);
+            BINARY_OP(Value::createBool, <);
             break;
         }
     }
@@ -182,7 +182,7 @@ Value GlangVm::peekStack(int distance) {
 void GlangVm::printStack() {
     fmt::print("Stack: [");
     for (auto slot = stack_; slot < stackTop_; ++slot) {
-        fmt::print(" {} ", valueToString(*slot));
+        fmt::print(" {} ", slot->toString());
     }
     fmt::print("]\n");
 }
@@ -205,8 +205,8 @@ void GlangVm::concatenate() {
     std::memcpy(chars + a->length, b->chars, b->length);
     chars[length] = '\0';
 
-    ObjString* result = takeString(chars, length);
-    pushToStack(value::objValue(result));
+    ObjString* result = ObjFactory::takeString(chars, length);
+    pushToStack(Value::createObj(result));
 }
 
 #undef BINARY_OP

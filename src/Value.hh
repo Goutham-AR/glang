@@ -3,6 +3,7 @@
 #include "common.hh"
 
 #include <string>
+#include <variant>
 
 struct Obj;
 struct ObjString;
@@ -15,33 +16,27 @@ enum ValueType {
 };
 
 struct Value {
+
+    double asNumber() { return std::get<double>(as); }
+    bool asBool() { return std::get<bool>(as); }
+    Obj* asObj() { return std::get<Obj*>(as); }
+
+    [[nodiscard]] bool isBool() const { return type == ValBool; }
+    [[nodiscard]] bool isNil() const { return type == ValNil; }
+    [[nodiscard]] bool isNumber() const { return type == ValNumber; }
+    [[nodiscard]] bool isObj() const { return type == ValObj; }
+
+    static Value createBool(bool value) { return Value{.type = ValBool, .as{value}}; }
+    static Value createNil() { return Value{.type = ValNil, .as{0.0}}; }
+    static Value createNumber(double value) { return Value{.type = ValNumber, .as{value}}; }
+
+    template <typename T>
+    static Value createObj(T* object) { return Value{.type = ValObj, .as{(Obj*)object}}; }
+
+    std::string toString();
+    void print() { fmt::print(toString()); }
+    static bool equal(Value a, Value b);
+
     ValueType type;
-    union {
-        bool boolean;
-        double number;
-        Obj* obj;
-    } as;
+    std::variant<bool, double, Obj*> as;
 };
-
-void printValue(Value value);
-std::string valueToString(Value value);
-bool valuesEqual(Value a, Value b);
-
-namespace value {
-inline bool asBool(Value value) { return value.as.boolean; }
-inline double asNumber(Value value) { return value.as.number; }
-inline Obj* asObj(Value value) { return value.as.obj; }
-
-inline bool isBool(Value value) { return value.type == ValBool; }
-inline bool isNil(Value value) { return value.type == ValNil; }
-inline bool isNumber(Value value) { return value.type == ValNumber; }
-inline bool isObj(Value value) { return value.type == ValObj; }
-
-inline Value boolValue(bool value) { return Value{.type = ValBool, .as{.boolean = value}}; }
-inline Value nilValue() { return Value{.type = ValNil, .as{.number = 0}}; }
-inline Value numberValue(double value) { return Value{.type = ValNumber, .as{.number = value}}; }
-
-template <typename T>
-inline Value objValue(T* object) { return Value{.type = ValObj, .as{.obj = (Obj*)object}}; }
-
-}
