@@ -200,7 +200,7 @@ void GlangVm::concatenate() {
     ObjString* a = object::asString(popFromStack());
 
     auto length = a->length + b->length;
-    char* chars = ALLOCATE(char, length + 1);
+    auto chars = memory::allocate<char>(length + 1);
     std::memcpy(chars, a->chars, a->length);
     std::memcpy(chars + a->length, b->chars, b->length);
     chars[length] = '\0';

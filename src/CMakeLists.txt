@@ -9,6 +9,7 @@ set(
         Parser.cc
         object.cc
         memory.cc
+        HashTable.cc
 
         debug.cc
 )
@@ -28,6 +29,7 @@ set(
         Parser.hh
         object.hh
         memory.hh
+        HashTable.hh
 
         debug.hh
 )

@@ -15,6 +15,7 @@ struct ObjString {
     Obj obj;
     int length;
     char* chars;
+    u32 hash;
 };
 
 static inline bool isObjType(Value value, ObjType type) {
@@ -32,3 +33,6 @@ inline char* asCString(Value value) { return ((ObjString*)value::asObj(value))->
 ObjString* copyString(const char* chars, int length);
 ObjString* takeString(char* chars, int length);
 std::string objectToString(Value value);
+
+class ObjectFactory {
+};

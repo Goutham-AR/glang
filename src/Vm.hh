@@ -2,6 +2,7 @@
 
 #include "common.hh"
 #include "ByteCode.hh"
+#include "HashTable.hh"
 
 #define STACK_MAX 256
 
@@ -39,4 +40,6 @@ private:
 
     Value stack_[STACK_MAX]{};
     Value* stackTop_{}; // points to where the next element is to be pushed
+
+    HashTable strings_;
 };
