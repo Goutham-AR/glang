@@ -16,7 +16,10 @@ enum class OpCode : std::uint8_t {
     Not,
     Equal,
     Greater,
-    Less
+    Less,
+    //
+    Print,
+    Pop
 };
 
 inline std::uint8_t toU8(OpCode code) { return static_cast<std::uint8_t>(code); }

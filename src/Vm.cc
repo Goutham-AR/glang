@@ -74,8 +74,6 @@ Result GlangVm::run() {
         switch (instruction) {
 
         case OpCode::Return: {
-            popFromStack().print();
-            fmt::print("\n");
             return Result::Ok;
         }
 
@@ -148,6 +146,15 @@ Result GlangVm::run() {
             break;
         case OpCode::Less:
             BINARY_OP(Value::createBool, <);
+            break;
+
+        case OpCode::Print:
+            popFromStack().print();
+            fmt::print("\n");
+            break;
+
+        case OpCode::Pop:
+            popFromStack();
             break;
         }
     }

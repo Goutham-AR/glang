@@ -1,7 +1,7 @@
 {
-    // "cmake.debugConfig": {
-    //     "cwd": "${workspaceFolder}/testFiles",
-    //     "args": ["test.gln"]
-    // },
+    "cmake.debugConfig": {
+        "cwd": "${workspaceFolder}/testFiles",
+        "args": ["test.gln"]
+    },
     
 }

@@ -12,8 +12,12 @@ bool compile(const std::string& code, ByteCode& byteCode) {
 
     parser.advance();
 
-    parser.expression();
-    parser.consume(TokenEof, "Expect end of expression");
+    // parser.expression();
+    // parser.consume(TokenEof, "Expect end of expression");
+
+    while (!parser.match(TokenEof)) {
+        parser.declaration();
+    }
 
     parser.emitReturn();
 #ifdef DEBUG_PRINT_BYTECODE

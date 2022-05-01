@@ -51,6 +51,7 @@ public:
     void advance();
     void consume(TokenType type, std::string_view msg);
     [[nodiscard]] bool hasError() const { return hadError_; }
+    bool match(TokenType type);
 
     // for code generation
     void emitByte(u8 byte);
@@ -64,8 +65,15 @@ private:
     void errorAtCurrent(std::string_view msg);
     void error(std::string_view msg);
     void errorAt(Token& token, std::string_view msg);
+    [[nodiscard]] bool check(TokenType type) const {
+        return current_.type == type;
+    }
 
 public:
+    void declaration();
+    void statement();
+    void printStatement();
+    void expressionStatement();
     void expression();
     void number();
     void grouping();

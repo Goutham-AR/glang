@@ -58,6 +58,10 @@ int disassembleInstruction(const ByteCode& code, int offset) {
         return simpleInstr("Greater", offset);
     case OpCode::Less:
         return simpleInstr("Less", offset);
+    case OpCode::Print:
+        return simpleInstr("Print", offset);
+    case OpCode::Pop:
+        return simpleInstr("Pop", offset);
 
     default:
         fmt::print("unknown opcode\n");

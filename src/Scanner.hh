@@ -57,9 +57,9 @@ enum TokenType {
 };
 
 struct Token {
-    TokenType type;
-    std::string_view name;
-    int line;
+    TokenType type{TokenEof};
+    std::string_view name{};
+    int line{};
 };
 
 class Scanner {

@@ -245,3 +245,33 @@ void Parser::binary() {
 void Parser::string() {
     emitConstant(Value::createObj(ObjFactory::copyString(previous_.name.data() + 1, previous_.name.length() - 2)));
 }
+
+bool Parser::match(TokenType type) {
+    if (!check(type)) return false;
+    advance();
+    return true;
+}
+
+void Parser::declaration() {
+    statement();
+}
+
+void Parser::statement() {
+    if (match(TokenPrint)) {
+        printStatement();
+    } else {
+        expressionStatement();
+    }
+}
+
+void Parser::printStatement() {
+    expression();
+    consume(TokenSemiColon, "Expect ';' after value.");
+    emitOpCode(OpCode::Print);
+}
+
+void Parser::expressionStatement() {
+    expression();
+    consume(TokenSemiColon, "Expect ';' after expression");
+    emitOpCode(OpCode::Pop);
+}
