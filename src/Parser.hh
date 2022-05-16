@@ -30,7 +30,7 @@ inline Precedence operator+(Precedence p, int i) {
     return static_cast<Precedence>(a);
 }
 
-using ParseFn = std::function<void(Parser*)>;
+using ParseFn = std::function<void(Parser*, bool)>;
 
 struct ParseRule {
     ParseFn prefix;
@@ -68,20 +68,29 @@ private:
     [[nodiscard]] bool check(TokenType type) const {
         return current_.type == type;
     }
+    void synchronize();
+
+    u8 parseVariable(std::string_view errorMsg);
+    void defineVariable(u8 global);
+    u8 identifierConstant(Token* name);
+
+    void namedVariable(Token name, bool canAssign);
 
 public:
     void declaration();
+    void variableDeclaration();
     void statement();
     void printStatement();
     void expressionStatement();
     void expression();
-    void number();
-    void grouping();
-    void unary();
+    void number(bool canAssign);
+    void grouping(bool canAssign);
+    void unary(bool canAssign);
     void parsePrecedence(Precedence precedence);
-    void binary();
-    void literal();
-    void string();
+    void binary(bool canAssign);
+    void literal(bool canAssign);
+    void string(bool canAssign);
+    void variable(bool canAssign);
 
 private:
     Scanner& scanner_;

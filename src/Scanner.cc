@@ -64,11 +64,6 @@ Token Scanner::scanToken() {
     case '"':
         return stringToken();
 
-    case '\n':
-        ++line_;
-        advance();
-        break;
-
     default:
         break;
     }
@@ -190,6 +185,11 @@ void Scanner::skipWhiteSpace() {
             } else {
                 return;
             }
+            break;
+
+        case '\n':
+            ++line_;
+            advance();
             break;
 
         default:

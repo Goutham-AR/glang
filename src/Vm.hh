@@ -32,7 +32,14 @@ private:
 
     void concatenate();
 
-    void runtimeError(std::string_view msg);
+    template <typename... T>
+    void runtimeError(std::string_view msg, T&&... args) {
+        size_t instruction = iPtr_ - code_.code_.data() - 1;
+        auto line = code_.lineNumbers_[instruction];
+        fmt::print(msg, std::forward<T>(args)...);
+        fmt::print("\n");
+        fmt::print("[line {}] in script\n", line);
+    }
 
 private:
     ByteCode code_;
@@ -41,5 +48,5 @@ private:
     Value stack_[STACK_MAX]{};
     Value* stackTop_{}; // points to where the next element is to be pushed
 
-    HashTable strings_;
+    HashTable globals_;
 };

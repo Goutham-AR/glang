@@ -1,1 +1,8 @@
 print "Hello world";
+
+def name = "Goutham AR";
+def age = 22;
+print name;
+
+name = "Naruto";
+print name;

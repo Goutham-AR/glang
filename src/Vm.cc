@@ -156,6 +156,36 @@ Result GlangVm::run() {
         case OpCode::Pop:
             popFromStack();
             break;
+
+        case OpCode::DefineGlobal: {
+            ObjString* name = object::asString(readConstant());
+            globals_.set(name, peekStack(0));
+            popFromStack();
+            break;
+        }
+
+        case OpCode::GetGlobal: {
+            ObjString* name = object::asString(readConstant());
+
+            auto val = globals_.get(name);
+            if (!val.has_value()) {
+                runtimeError("Undefined variable {}.", name->chars);
+                return Result::RuntimeError;
+            }
+
+            pushToStack(val.value());
+            break;
+        }
+
+        case OpCode::SetGlobal: {
+            ObjString* name = object::asString(readConstant());
+            if (globals_.set(name, peekStack(0))) {
+                globals_.deleteEntry(name);
+                runtimeError("Undefined Variable {}.", name->chars);
+                return Result::RuntimeError;
+            }
+            break;
+        }
         }
     }
 }
@@ -194,13 +224,13 @@ void GlangVm::printStack() {
     fmt::print("]\n");
 }
 
-void GlangVm::runtimeError(std::string_view msg) {
+// void GlangVm::runtimeError(std::string_view msg) {
 
-    fmt::print("{}\n", msg);
-    size_t instruction = iPtr_ - code_.code_.data() - 1;
-    auto line = code_.lineNumbers_[instruction];
-    fmt::print("[line {}] in script\n", line);
-}
+//     fmt::print("{}\n", msg);
+//     size_t instruction = iPtr_ - code_.code_.data() - 1;
+//     auto line = code_.lineNumbers_[instruction];
+//     fmt::print("[line {}] in script\n", line);
+// }
 
 void GlangVm::concatenate() {
     ObjString* b = object::asString(popFromStack());

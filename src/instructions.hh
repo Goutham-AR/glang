@@ -19,7 +19,10 @@ enum class OpCode : std::uint8_t {
     Less,
     //
     Print,
-    Pop
+    Pop,
+    DefineGlobal,
+    GetGlobal,
+    SetGlobal
 };
 
 inline std::uint8_t toU8(OpCode code) { return static_cast<std::uint8_t>(code); }

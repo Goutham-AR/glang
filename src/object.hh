@@ -35,7 +35,7 @@ inline char* asCString(Value value) {
 inline std::string toString(Value value) {
     switch (object::objType(value)) {
     case OBJ_STRING:
-        return fmt::format("\"{}\"", object::asCString(value));
+        return fmt::format("{}", object::asCString(value));
         break;
     }
 }

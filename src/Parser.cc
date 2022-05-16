@@ -23,7 +23,7 @@ ParseRule Parser::rules_[] = {
     [TokenGreaterEqual] = {nullptr, &Parser::binary, Precedence::Comparison},
     [TokenLess]         = {nullptr, &Parser::binary, Precedence::Comparison},
     [TokenLessEqual]    = {nullptr, &Parser::binary, Precedence::Comparison},
-    [TokenIdentifier]   = {nullptr, nullptr, Precedence::None},
+    [TokenIdentifier]   = {&Parser::variable, nullptr, Precedence::None},
     [TokenString]       = {&Parser::string, nullptr, Precedence::None},
     [TokenNumber]       = {&Parser::number, nullptr, Precedence::None},
     [TokenAnd]          = {nullptr, nullptr, Precedence::None},
@@ -140,16 +140,16 @@ void Parser::expression() {
     parsePrecedence(Precedence::Assignment);
 }
 
-void Parser::number() {
+void Parser::number(bool canAssign) {
     double value = strtod(previous_.name.data(), nullptr);
     emitConstant(Value::createNumber(value));
 }
 
-void Parser::grouping() {
+void Parser::grouping(bool canAssign) {
     expression();
     consume(TokenRightParen, "Expect ')' after expression");
 }
-void Parser::unary() {
+void Parser::unary(bool canAssign) {
     auto operatorType = previous_.type;
 
     parsePrecedence(Precedence::Unary);
@@ -166,7 +166,7 @@ void Parser::unary() {
     }
 }
 
-void Parser::literal() {
+void Parser::literal(bool canAssign) {
     switch (previous_.type) {
     case TokenTrue:
         emitOpCode(OpCode::True);
@@ -190,16 +190,21 @@ void Parser::parsePrecedence(Precedence precedence) {
         return;
     }
 
-    prefixRule(this);
+    bool canAssign = (precedence <= Precedence::Assignment);
+    prefixRule(this, canAssign);
 
     while (precedence <= getRule(current_.type)->precedence) {
         advance();
         auto infixRule = getRule(previous_.type)->infix;
-        infixRule(this);
+        infixRule(this, canAssign);
+    }
+
+    if (canAssign && match(TokenEqual)) {
+        error("Invalid assignment target.");
     }
 }
 
-void Parser::binary() {
+void Parser::binary(bool canAssign) {
     auto operatorType = previous_.type;
 
     auto rule = getRule(operatorType);
@@ -242,8 +247,22 @@ void Parser::binary() {
     }
 }
 
-void Parser::string() {
+void Parser::string(bool canAssign) {
     emitConstant(Value::createObj(ObjFactory::copyString(previous_.name.data() + 1, previous_.name.length() - 2)));
+}
+
+void Parser::variable(bool canAssigns) {
+    namedVariable(previous_, canAssigns);
+}
+
+void Parser::namedVariable(Token name, bool canAssign) {
+    u8 arg = identifierConstant(&name);
+    if (canAssign && match(TokenEqual)) {
+        expression();
+        emitOpCodeAndOperand(OpCode::SetGlobal, arg);
+    } else {
+        emitOpCodeAndOperand(OpCode::GetGlobal, arg);
+    }
 }
 
 bool Parser::match(TokenType type) {
@@ -253,7 +272,28 @@ bool Parser::match(TokenType type) {
 }
 
 void Parser::declaration() {
-    statement();
+    if (match(TokenDef)) {
+        variableDeclaration();
+    } else {
+        statement();
+    }
+
+    if (panicMode_) {
+        synchronize();
+    }
+}
+
+void Parser::variableDeclaration() {
+    u8 global = parseVariable("Expect variable name.");
+
+    if (match(TokenEqual)) {
+        expression();
+    } else {
+        emitOpCode(OpCode::Nil);
+    }
+
+    consume(TokenSemiColon, "Expect ';' after variable declaration");
+    defineVariable(global);
 }
 
 void Parser::statement() {
@@ -274,4 +314,38 @@ void Parser::expressionStatement() {
     expression();
     consume(TokenSemiColon, "Expect ';' after expression");
     emitOpCode(OpCode::Pop);
+}
+
+void Parser::synchronize() {
+    panicMode_ = false;
+
+    while (current_.type != TokenEof) {
+        if (previous_.type == TokenSemiColon) return;
+
+        switch (current_.type) {
+        case TokenClass:
+        case TokenFun:
+        case TokenDef:
+        case TokenFor:
+        case TokenIf:
+        case TokenWhile:
+        case TokenPrint:
+        case TokenReturn:
+            return;
+        default:;
+        }
+        advance();
+    }
+}
+
+u8 Parser::parseVariable(std::string_view errorMsg) {
+    consume(TokenIdentifier, errorMsg);
+    return identifierConstant(&previous_);
+}
+void Parser::defineVariable(u8 global) {
+    emitOpCodeAndOperand(OpCode::DefineGlobal, global);
+}
+
+u8 Parser::identifierConstant(Token* name) {
+    return byteCode_.writeValue(Value::createObj(ObjFactory::copyString(name->name.data(), name->name.length())));
 }

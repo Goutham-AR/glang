@@ -9,10 +9,10 @@ static int simpleInstr(const char* name, int offset) {
     return offset + 1;
 }
 
-static int constantInstruction(const ByteCode& code, int offset) {
+static int constantInstruction(std::string_view name, const ByteCode& code, int offset) {
     auto constantOffset = toU8(code.getOpCode(offset + 1));
     auto constant = code.getConstantAtOffset(constantOffset);
-    fmt::print("Constant {} [{}]\n", constantOffset, constant.toString());
+    fmt::print("{} {} [{}]\n", name, constantOffset, constant.toString());
 
     return offset + 2;
 }
@@ -33,7 +33,7 @@ int disassembleInstruction(const ByteCode& code, int offset) {
     case OpCode::Return:
         return simpleInstr("Return", offset);
     case OpCode::Constant:
-        return constantInstruction(code, offset);
+        return constantInstruction("Constant", code, offset);
     case OpCode::Negate:
         return simpleInstr("Negate", offset);
     case OpCode::Add:
@@ -62,6 +62,12 @@ int disassembleInstruction(const ByteCode& code, int offset) {
         return simpleInstr("Print", offset);
     case OpCode::Pop:
         return simpleInstr("Pop", offset);
+    case OpCode::DefineGlobal:
+        return constantInstruction("DefineGlobal", code, offset);
+    case OpCode::GetGlobal:
+        return constantInstruction("GetGlobal", code, offset);
+    case OpCode::SetGlobal:
+        return constantInstruction("SetGlobal", code, offset);
 
     default:
         fmt::print("unknown opcode\n");

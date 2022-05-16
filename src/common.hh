@@ -11,8 +11,8 @@ using u8 = std::uint8_t;
 using u32 = std::uint32_t;
 using size = std::size_t;
 
-#define DEBUG_PRINT_BYTECODE
-#define TRACE_VM_EXECUTION
+// #define DEBUG_PRINT_BYTECODE
+// #define TRACE_VM_EXECUTION
 
 enum class Result {
     Ok,
