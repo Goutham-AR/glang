@@ -17,6 +17,12 @@ static int constantInstruction(std::string_view name, const ByteCode& code, int 
     return offset + 2;
 }
 
+static int byteInstruction(std::string_view name, const ByteCode& code, int offset) {
+    auto slot = toU8(code.getOpCode(offset + 1));
+    fmt::print("{} {}\n", name, slot);
+    return offset + 2;
+}
+
 void disassembleByteCode(const ByteCode& code) {
     fmt::print("== disassembly ==\n");
 
@@ -68,6 +74,10 @@ int disassembleInstruction(const ByteCode& code, int offset) {
         return constantInstruction("GetGlobal", code, offset);
     case OpCode::SetGlobal:
         return constantInstruction("SetGlobal", code, offset);
+    case OpCode::GetLocal:
+        return byteInstruction("GetLocal", code, offset);
+    case OpCode::SetLocal:
+        return byteInstruction("SetLocal", code, offset);
 
     default:
         fmt::print("unknown opcode\n");

@@ -1,6 +1,12 @@
 #include "Parser.hh"
 #include "ByteCode.hh"
 #include "object.hh"
+#include "compiler.hh"
+
+static bool identifiersEqual(Token* a, Token* b) {
+    if (a->name.length() != b->name.length()) return false;
+    return a->name == b->name;
+}
 
 // clang-format off
 ParseRule Parser::rules_[] = {
@@ -254,14 +260,39 @@ void Parser::string(bool canAssign) {
 void Parser::variable(bool canAssigns) {
     namedVariable(previous_, canAssigns);
 }
+int Parser::resolveLocal(Compiler* compiler, Token* name) {
+    for (int i = compiler->localCount - 1; i >= 0; i--) {
+        Local* local = &compiler->locals[i];
+        if (identifiersEqual(name, &local->name)) {
+            if (local->depth == -1) {
+                error("Can't read local variable in its own initializer.");
+            }
+
+            return i;
+        }
+    }
+    return -1;
+}
 
 void Parser::namedVariable(Token name, bool canAssign) {
-    u8 arg = identifierConstant(&name);
+
+    OpCode getOp, setOp;
+    int arg = resolveLocal(g_current, &name);
+
+    if (arg != -1) {
+        getOp = OpCode::GetLocal;
+        setOp = OpCode::SetLocal;
+    } else {
+        arg = identifierConstant(&name);
+        getOp = OpCode::GetGlobal;
+        setOp = OpCode::SetGlobal;
+    }
+
     if (canAssign && match(TokenEqual)) {
         expression();
-        emitOpCodeAndOperand(OpCode::SetGlobal, arg);
+        emitOpCodeAndOperand(setOp, arg);
     } else {
-        emitOpCodeAndOperand(OpCode::GetGlobal, arg);
+        emitOpCodeAndOperand(getOp, arg);
     }
 }
 
@@ -299,8 +330,31 @@ void Parser::variableDeclaration() {
 void Parser::statement() {
     if (match(TokenPrint)) {
         printStatement();
+    } else if (match(TokenLeftBrace)) {
+        beginScope();
+        block();
+        endScope();
     } else {
         expressionStatement();
+    }
+}
+
+void Parser::beginScope() {
+    g_current->scopeDepth++;
+}
+void Parser::block() {
+    while (!check(TokenRightBrace) && !check(TokenEof)) {
+        declaration();
+    }
+
+    consume(TokenRightBrace, "Expect '}' after block");
+}
+void Parser::endScope() {
+    g_current->scopeDepth--;
+
+    while (g_current->localCount > 0 && g_current->locals[g_current->localCount - 1].depth > g_current->scopeDepth) {
+        emitOpCode(OpCode::Pop);
+        g_current->localCount--;
     }
 }
 
@@ -316,6 +370,11 @@ void Parser::expressionStatement() {
     emitOpCode(OpCode::Pop);
 }
 
+/*
+We skip tokens until we reach something that looks like a statement boundary.
+We recognize the boundary by looking for a preceding token that can end a statement, like a semicolon.
+Or we’ll look for a subsequent token that begins a statement, usually one of the control flow or declaration keywords.
+*/
 void Parser::synchronize() {
     panicMode_ = false;
 
@@ -340,9 +399,51 @@ void Parser::synchronize() {
 
 u8 Parser::parseVariable(std::string_view errorMsg) {
     consume(TokenIdentifier, errorMsg);
+    declareVariable();
+    if (g_current->scopeDepth > 0) return 0;
+
     return identifierConstant(&previous_);
 }
+
+void Parser::declareVariable() {
+    if (g_current->scopeDepth == 0) return;
+
+    Token* name = &previous_;
+    for (int i = g_current->localCount - 1; i >= 0; i--) {
+        Local* local = &g_current->locals[i];
+        if (local->depth != -1 && local->depth < g_current->scopeDepth) {
+            break;
+        }
+
+        if (identifiersEqual(name, &local->name)) {
+            error("Already variable with this name in this scope");
+        }
+    }
+
+    addLocal(*name);
+}
+
+void Parser::addLocal(Token name) {
+    if (g_current->localCount == UINT8_MAX + 1) {
+        error("Too many local variables in function");
+        return;
+    }
+
+    Local* local = &g_current->locals[g_current->localCount++];
+    local->name = name;
+    local->depth = -1;
+}
+
+void Parser::markInitialized() {
+    g_current->locals[g_current->localCount - 1].depth = g_current->scopeDepth;
+}
+
 void Parser::defineVariable(u8 global) {
+    if (g_current->scopeDepth > 0) {
+        markInitialized();
+        return;
+    }
+
     emitOpCodeAndOperand(OpCode::DefineGlobal, global);
 }
 

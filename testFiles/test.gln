@@ -1,8 +1,17 @@
 print "Hello world";
 
 def name = "Goutham AR";
-def age = 22;
+def age = "22";
 print name;
 
 name = "Naruto";
-print name;
+print name + " Uzumaki";
+print name + age;
+
+{
+    def a = 2;
+    def b = 4;
+
+
+    print a + b;
+}

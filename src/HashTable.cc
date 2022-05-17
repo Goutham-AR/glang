@@ -6,6 +6,9 @@ std::size_t Hasher::operator()(ObjString* key) const noexcept {
 }
 
 HashTable::~HashTable() = default;
+
+// inserts the given key and value
+// returns true if the key is new, false if not
 bool HashTable::set(ObjString* key, Value value) {
 
     bool isNewKey = true;

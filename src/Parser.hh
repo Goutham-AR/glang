@@ -4,6 +4,7 @@
 #include "Scanner.hh"
 #include "instructions.hh"
 #include "Value.hh"
+#include "compiler.hh"
 
 #include <string_view>
 #include <functional>
@@ -75,6 +76,13 @@ private:
     u8 identifierConstant(Token* name);
 
     void namedVariable(Token name, bool canAssign);
+    void beginScope();
+    void block();
+    void endScope();
+    void declareVariable();
+    void addLocal(Token name);
+    int resolveLocal(Compiler* compiler, Token* name);
+    void markInitialized();
 
 public:
     void declaration();

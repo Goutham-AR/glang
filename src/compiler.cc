@@ -6,10 +6,15 @@
 #include "debug.hh"
 #endif
 
+Compiler* g_current = nullptr;
+
 bool compile(const std::string& code, ByteCode& byteCode) {
     Scanner scanner{code};
     Parser parser{scanner, byteCode};
-
+    Compiler compiler;
+    compiler.localCount = 0;
+    compiler.scopeDepth = 0;
+    g_current = &compiler;
     parser.advance();
 
     // parser.expression();

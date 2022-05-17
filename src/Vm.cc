@@ -186,6 +186,18 @@ Result GlangVm::run() {
             }
             break;
         }
+
+        case OpCode::GetLocal: {
+            auto slot = readByte();
+            pushToStack(stack_[slot]);
+            break;
+        }
+
+        case OpCode::SetLocal: {
+            auto slot = readByte();
+            stack_[slot] = peekStack(0);
+            break;
+        }
         }
     }
 }
