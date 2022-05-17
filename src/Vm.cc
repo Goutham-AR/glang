@@ -198,6 +198,21 @@ Result GlangVm::run() {
             stack_[slot] = peekStack(0);
             break;
         }
+        case OpCode::JmpIfFalse: {
+            auto offset = readShort();
+            if (isFalsey(peekStack(0))) iPtr_ += offset;
+            break;
+        }
+        case OpCode::Jmp: {
+            auto offset = readShort();
+            iPtr_ += offset;
+            break;
+        }
+        case OpCode::Loop: {
+            auto offset = readShort();
+            iPtr_ -= offset;
+            break;
+        }
         }
     }
 }
@@ -206,6 +221,11 @@ u8 GlangVm::readByte() {
     ++iPtr_;
     return byte;
 }
+u16 GlangVm::readShort() {
+    iPtr_ += 2;
+    return static_cast<uint16_t>((iPtr_[-2] << 8) | iPtr_[-1]);
+}
+
 OpCode GlangVm::readInstr() {
     return toOp(readByte());
 }

@@ -61,6 +61,11 @@ public:
     void emitOpCodeAndOperand(OpCode code, u8 operand);
     void emitConstant(Value value);
     void emitOpCodes(OpCode code1, OpCode code2);
+    int emitJump(OpCode opcode);
+    void emitLoop(int loopstart);
+    void patchJump(int offset);
+    void and_(bool canAssign);
+    void or_(bool canAssign);
 
 private:
     void errorAtCurrent(std::string_view msg);
@@ -85,11 +90,14 @@ private:
     void markInitialized();
 
 public:
+    void ifStatement();
     void declaration();
     void variableDeclaration();
     void statement();
     void printStatement();
+    void forStatement();
     void expressionStatement();
+    void whileStatement();
     void expression();
     void number(bool canAssign);
     void grouping(bool canAssign);

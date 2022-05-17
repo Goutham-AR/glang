@@ -22,6 +22,8 @@ public:
 private:
     Result run();
     u8 readByte();
+    u16 readShort();
+
     OpCode readInstr();
     Value readConstant();
 

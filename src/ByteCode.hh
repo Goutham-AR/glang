@@ -8,10 +8,12 @@
 #include <vector>
 
 class GlangVm;
+class Parser;
 
 class ByteCode {
 
     friend GlangVm;
+    friend Parser;
 
 public:
     ByteCode() = default;

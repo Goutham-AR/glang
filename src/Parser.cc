@@ -32,7 +32,7 @@ ParseRule Parser::rules_[] = {
     [TokenIdentifier]   = {&Parser::variable, nullptr, Precedence::None},
     [TokenString]       = {&Parser::string, nullptr, Precedence::None},
     [TokenNumber]       = {&Parser::number, nullptr, Precedence::None},
-    [TokenAnd]          = {nullptr, nullptr, Precedence::None},
+    [TokenAnd]          = {nullptr, &Parser::and_, Precedence::And},
     [TokenClass]        = {nullptr, nullptr, Precedence::None},
     [TokenElse]         = {nullptr, nullptr, Precedence::None},
     [TokenFalse]        = {&Parser::literal, nullptr, Precedence::None},
@@ -40,7 +40,7 @@ ParseRule Parser::rules_[] = {
     [TokenFun]          = {nullptr, nullptr, Precedence::None},
     [TokenIf]           = {nullptr, nullptr, Precedence::None},
     [TokenNil]          = {&Parser::literal, nullptr, Precedence::None},
-    [TokenOr]           = {nullptr, nullptr, Precedence::None},
+    [TokenOr]           = {nullptr, &Parser::or_, Precedence::Or},
     [TokenPrint]        = {nullptr, nullptr, Precedence::None},
     [TokenReturn]       = {nullptr, nullptr, Precedence::None},
     [TokenParent]       = {nullptr, nullptr, Precedence::None},
@@ -140,6 +140,15 @@ void Parser::emitConstant(Value value) {
     }
 
     emitOpCodeAndOperand(OpCode::Constant, static_cast<u8>(operand));
+}
+void Parser::emitLoop(int loopstart) {
+    emitOpCode(OpCode::Loop);
+
+    auto offset = byteCode_.codeSize() - loopstart + 2;
+    if (offset > UINT16_MAX) error("Loop body too large");
+
+    emitByte((offset >> 8) & 0xff);
+    emitByte(offset & 0xff);
 }
 
 void Parser::expression() {
@@ -253,6 +262,26 @@ void Parser::binary(bool canAssign) {
     }
 }
 
+void Parser::and_(bool canAssign) {
+    int endJump = emitJump(OpCode::JmpIfFalse);
+    emitOpCode(OpCode::Pop);
+
+    parsePrecedence(Precedence::And);
+
+    patchJump(endJump);
+}
+
+void Parser::or_(bool canAssign) {
+    int elseJump = emitJump(OpCode::JmpIfFalse);
+    int endJump = emitJump(OpCode::Jmp);
+
+    patchJump(elseJump);
+    emitOpCode(OpCode::Pop);
+
+    parsePrecedence(Precedence::Or);
+    patchJump(endJump);
+}
+
 void Parser::string(bool canAssign) {
     emitConstant(Value::createObj(ObjFactory::copyString(previous_.name.data() + 1, previous_.name.length() - 2)));
 }
@@ -330,6 +359,12 @@ void Parser::variableDeclaration() {
 void Parser::statement() {
     if (match(TokenPrint)) {
         printStatement();
+    } else if (match(TokenFor)) {
+        forStatement();
+    } else if (match(TokenIf)) {
+        ifStatement();
+    } else if (match(TokenWhile)) {
+        whileStatement();
     } else if (match(TokenLeftBrace)) {
         beginScope();
         block();
@@ -337,6 +372,102 @@ void Parser::statement() {
     } else {
         expressionStatement();
     }
+}
+void Parser::forStatement() {
+
+    beginScope();
+
+    consume(TokenLeftParen, "Expect '(' after for.");
+    if (match(TokenSemiColon)) {
+
+    } else if (match(TokenDef)) {
+        variableDeclaration();
+    } else {
+        expressionStatement();
+    }
+
+    int loopStart = byteCode_.codeSize();
+    int exitJump = -1;
+    if (!match(TokenSemiColon)) {
+        expression();
+        consume(TokenSemiColon, "Expect ';' after loop condition");
+
+        exitJump = emitJump(OpCode::JmpIfFalse);
+        emitOpCode(OpCode::Pop);
+    }
+
+    if (!match(TokenRightParen)) {
+        int bodyJump = emitJump(OpCode::Jmp);
+        auto incrementStart = byteCode_.codeSize();
+        expression();
+        emitOpCode(OpCode::Pop);
+        consume(TokenRightParen, "Expect ')' after for clauses.");
+
+        emitLoop(loopStart);
+        loopStart = incrementStart;
+        patchJump(bodyJump);
+    }
+
+    statement();
+
+    emitLoop(loopStart);
+    if (exitJump != -1) {
+        patchJump(exitJump);
+        emitOpCode(OpCode::Pop);
+    }
+
+    endScope();
+}
+void Parser::whileStatement() {
+    int loopStart = byteCode_.codeSize();
+    consume(TokenLeftParen, "Expect '(' after while.");
+    expression();
+    consume(TokenRightParen, "Expect ')' after condition.");
+
+    int exitJump = emitJump(OpCode::JmpIfFalse);
+
+    emitOpCode(OpCode::Pop);
+    statement();
+
+    emitLoop(loopStart);
+
+    patchJump(exitJump);
+    emitOpCode(OpCode::Pop);
+}
+
+void Parser::ifStatement() {
+    consume(TokenLeftParen, "Expect '(' after if");
+    expression();
+    consume(TokenRightParen, "Expect ')' after condition");
+
+    int thenJump = emitJump(OpCode::JmpIfFalse);
+    emitOpCode(OpCode::Pop);
+    statement();
+
+    int elseJump = emitJump(OpCode::Jmp);
+
+    patchJump(thenJump);
+    emitOpCode(OpCode::Pop);
+    if (match(TokenElse)) statement();
+    patchJump(elseJump);
+}
+
+int Parser::emitJump(OpCode opcode) {
+    emitOpCode(opcode);
+    emitByte(0xff);
+    emitByte(0xff);
+    return byteCode_.codeSize() - 2;
+}
+
+void Parser::patchJump(int offset) {
+    int jump = byteCode_.codeSize() - offset - 2;
+
+    if (jump > UINT16_MAX) {
+        error("Too much code to jump over");
+    }
+
+    byteCode_.code_[offset] = (jump >> 8) & 0xff;
+    byteCode_.code_[offset + 1] = jump & 0xff;
 }
 
 void Parser::beginScope() {

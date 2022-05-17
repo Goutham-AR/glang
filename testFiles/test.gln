@@ -1,17 +1,7 @@
-print "Hello world";
-
-def name = "Goutham AR";
-def age = "22";
-print name;
-
-name = "Naruto";
-print name + " Uzumaki";
-print name + age;
-
-{
-    def a = 2;
-    def b = 4;
-
-
-    print a + b;
+def output = "";
+for (def i = 0; i < 6; i = i + 1) {
+    for (def j = 0; j < 6; j = j + 1) {
+        output = output + "*";
+        print output;
+    }
 }

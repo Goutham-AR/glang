@@ -23,6 +23,13 @@ static int byteInstruction(std::string_view name, const ByteCode& code, int offs
     return offset + 2;
 }
 
+static int jumpInstruction(std::string_view name, int sign, const ByteCode& code, int offset) {
+    auto jump = (uint16_t)(toU8(code.getOpCode(offset + 1)) << 8);
+    jump |= toU8(code.getOpCode(offset + 2));
+    fmt::print("{} {} -> {}\n", name, offset, offset + 3 + sign * jump);
+    return offset + 3;
+}
+
 void disassembleByteCode(const ByteCode& code) {
     fmt::print("== disassembly ==\n");
 
@@ -78,6 +85,12 @@ int disassembleInstruction(const ByteCode& code, int offset) {
         return byteInstruction("GetLocal", code, offset);
     case OpCode::SetLocal:
         return byteInstruction("SetLocal", code, offset);
+    case OpCode::Jmp:
+        return jumpInstruction("Jmp", 1, code, offset);
+    case OpCode::JmpIfFalse:
+        return jumpInstruction("JmpIfFalse", 1, code, offset);
+    case OpCode::Loop:
+        return jumpInstruction("Loop", -1, code, offset);
 
     default:
         fmt::print("unknown opcode\n");
