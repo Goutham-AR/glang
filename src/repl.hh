@@ -2,21 +2,22 @@
 
 #include "common.hh"
 
-#include <string>
-#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "Vm.hh"
 
 // more work needs to be done on the REPL
 // like handling multi-line inputs
 inline void repl() {
-    std::string line;
+    size_t capacity = 32;
+    char* line = (char*)malloc(capacity);
 
     while (true) {
-        fmt::print(">>> ");
+        printf(">>> ");
 
-        if (!std::getline(std::cin, line)) {
-            fmt::print("\n");
+        if (getline(&line, &capacity, stdin) == -1) {
+            printf("\n");
             break;
         }
 
