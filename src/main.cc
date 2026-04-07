@@ -12,8 +12,8 @@ void runFile(const char* filename) {
     std::string sourceCode{sourceCodeContent};
     auto result = interpret(sourceCode);
 
-    if (result == Result::CompileError) exit(65);
-    if (result == Result::RuntimeError) exit(70);
+    if (result == Result_Compile_Error) exit(65);
+    if (result == Result_Runtime_Error) exit(70);
 }
 
 int main(int argc, char** argv) {

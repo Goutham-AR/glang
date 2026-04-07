@@ -1,4 +1,5 @@
 #include "Vm.hh"
+#include "common.hh"
 #include "debug.hh"
 #include "compiler.hh"
 #include "object.hh"
@@ -8,7 +9,7 @@ Result interpret(const std::string& code) {
     ByteCode byteCode;
 
     if (!compile(code, byteCode)) {
-        return Result::CompileError;
+        return Result_Compile_Error;
     }
 
     GlangVm vMachine{byteCode};
@@ -27,7 +28,7 @@ static bool isFalsey(Value value) {
     do {                                                            \
         if (!peekStack(0).isNumber() || !peekStack(1).isNumber()) { \
             runtimeError("Operands must be numbers");               \
-            return Result::RuntimeError;                            \
+            return Result_Runtime_Error;                            \
         }                                                           \
         double op2 = popFromStack().asNumber();                     \
         double op1 = popFromStack().asNumber();                     \
@@ -74,7 +75,7 @@ Result GlangVm::run() {
         switch (instruction) {
 
         case OpCode::Return: {
-            return Result::Ok;
+            return Result_Ok;
         }
 
         case OpCode::Constant: {
@@ -86,7 +87,7 @@ Result GlangVm::run() {
         case OpCode::Negate: {
             if (peekStack(0).isNumber()) {
                 runtimeError("Operand must be a number");
-                return Result::RuntimeError;
+                return Result_Runtime_Error;
             }
 
             pushToStack(Value::createNumber(-(popFromStack().asNumber())));
@@ -102,7 +103,7 @@ Result GlangVm::run() {
                 pushToStack(Value::createNumber(a + b));
             } else {
                 runtimeError("Operands must be two numbers or two strings");
-                return Result::RuntimeError;
+                return Result_Runtime_Error;
             }
             break;
         }
@@ -170,7 +171,7 @@ Result GlangVm::run() {
             auto val = globals_.get(name);
             if (!val.has_value()) {
                 runtimeError("Undefined variable {}.", name->chars);
-                return Result::RuntimeError;
+                return Result_Runtime_Error;
             }
 
             pushToStack(val.value());
@@ -182,7 +183,7 @@ Result GlangVm::run() {
             if (globals_.set(name, peekStack(0))) {
                 globals_.deleteEntry(name);
                 runtimeError("Undefined Variable {}.", name->chars);
-                return Result::RuntimeError;
+                return Result_Runtime_Error;
             }
             break;
         }
