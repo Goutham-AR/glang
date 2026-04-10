@@ -1,0 +1,146 @@
+// =============================================
+//  glang Demo Program
+// =============================================
+
+// --- Variables & Basic Output ---
+print "=== Welcome to glang! ===";
+print "";
+
+def language = "glang";
+def version = 1;
+print "Language: " + language;
+
+// --- Arithmetic ---
+print "=== Arithmetic ===";
+def a = 15;
+def b = 4;
+print a + b;   // 19
+print a - b;   // 11
+print a * b;   // 60
+print a / b;   // 3.75
+
+// --- Booleans & Logic ---
+print "=== Booleans ===";
+def x = true;
+def y = false;
+print x;
+print !y;
+print x and y;
+print x or y;
+
+// --- Comparison ---
+print "=== Comparisons ===";
+print 10 > 5;
+print 10 == 10;
+print 10 != 3;
+print 3 <= 3;
+
+// --- String Concatenation ---
+print "=== Strings ===";
+def first = "Hello";
+def second = "World";
+print first + ", " + second + "!";
+
+// --- If / Else ---
+print "=== If/Else ===";
+def score = 85;
+if (score >= 90) {
+  print "Grade: A";
+} else {
+  if (score >= 80) {
+    print "Grade: B";
+  } else {
+    if (score >= 70) {
+      print "Grade: C";
+    } else {
+      print "Grade: F";
+    }
+  }
+}
+
+// --- While Loop ---
+print "=== Countdown ===";
+def count = 5;
+while (count > 0) {
+  print count;
+  count = count - 1;
+}
+print "Liftoff!";
+
+// --- For Loop ---
+print "=== Multiplication Table (7) ===";
+for (def i = 1; i <= 10; i = i + 1) {
+  print 7 * i;
+}
+
+// --- Factorial ---
+print "=== Factorial of 10 ===";
+def n = 10;
+def factorial = 1;
+for (def i = 1; i <= n; i = i + 1) {
+  factorial = factorial * i;
+}
+print factorial;
+
+// --- Fibonacci Sequence (first 15 terms) ---
+print "=== Fibonacci ===";
+def fib_a = 0;
+def fib_b = 1;
+for (def i = 0; i < 15; i = i + 1) {
+  print fib_a;
+  def temp = fib_b;
+  fib_b = fib_a + fib_b;
+  fib_a = temp;
+}
+
+// --- Scoping ---
+print "=== Scoping ===";
+def outer = "outside";
+{
+  def inner = "inside";
+  print outer;
+  print inner;
+}
+print outer;
+// "inner" is no longer accessible here
+
+// --- FizzBuzz (1 to 20) ---
+print "=== FizzBuzz ===";
+for (def i = 1; i <= 20; i = i + 1) {
+  // glang doesn't have modulo, so we use a counter approach
+  def fizz = false;
+  def buzz = false;
+
+  // check divisible by 3
+  def m3 = i / 3;
+  if (m3 == 1 or m3 == 2 or m3 == 3 or m3 == 4 or m3 == 5 or m3 == 6) {
+    if (m3 * 3 == i) {
+      fizz = true;
+    }
+  }
+
+  // check divisible by 5
+  def m5 = i / 5;
+  if (m5 == 1 or m5 == 2 or m5 == 3 or m5 == 4) {
+    if (m5 * 5 == i) {
+      buzz = true;
+    }
+  }
+
+  if (fizz and buzz) {
+    print "FizzBuzz";
+  } else {
+    if (fizz) {
+      print "Fizz";
+    } else {
+      if (buzz) {
+        print "Buzz";
+      } else {
+        print i;
+      }
+    }
+  }
+}
+
+print "";
+print "=== Done! ===";

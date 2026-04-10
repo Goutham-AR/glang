@@ -1,37 +1,36 @@
 set(
-    SRC_FILES 
-        main.cc
-        ByteCode.cc
-        Value.cc
-        Vm.cc
-        compiler.cc
-        Scanner.cc
-        Parser.cc
-        object.cc
-        memory.cc
-        HashTable.cc
-
-        debug.cc
+    SRC_FILES
+        main.c
+        bytecode.c
+        value.c
+        vm.c
+        compiler.c
+        scanner.c
+        parser.c
+        object.c
+        memory.c
+        table.c
+        debug.c
+        utils.c
+        repl.c
 )
-
 
 set(
     HEADER_FILES
-        log.hh
-	    common.hh
-        ByteCode.hh
-        Value.hh
-        Vm.hh
-        repl.hh
-        utils.hh
-        compiler.hh
-        Scanner.hh
-        Parser.hh
-        object.hh
-        memory.hh
-        HashTable.hh
-
-        debug.hh
+        common.h
+        instructions.h
+        bytecode.h
+        value.h
+        vm.h
+        compiler.h
+        scanner.h
+        parser.h
+        object.h
+        memory.h
+        table.h
+        debug.h
+        utils.h
+        repl.h
 )
 
 add_executable(
@@ -40,9 +39,4 @@ add_executable(
         ${HEADER_FILES}
 )
 
-
-target_link_libraries(
-    glang
-    PRIVATE
-        fmt
-)
+target_link_libraries(glang m)
