@@ -1,5 +1,5 @@
-#ifndef GLANG_TABLE_H
-#define GLANG_TABLE_H
+#ifndef SOLV_TABLE_H
+#define SOLV_TABLE_H
 
 #include "common.h"
 #include "value.h"
@@ -25,4 +25,4 @@ bool       table_get(Table* table, ObjString* key, Value* out_value);
 bool       table_delete(Table* table, ObjString* key);
 ObjString* table_find_string(Table* table, const char* chars, int length, u32 hash);
 
-#endif /* GLANG_TABLE_H */
+#endif /* SOLV_TABLE_H */

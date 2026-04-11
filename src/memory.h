@@ -1,5 +1,5 @@
-#ifndef GLANG_MEMORY_H
-#define GLANG_MEMORY_H
+#ifndef SOLV_MEMORY_H
+#define SOLV_MEMORY_H
 
 #include "common.h"
 #include <stdlib.h>
@@ -17,4 +17,4 @@ void* reallocate(void* ptr, size_t old_size, size_t new_size);
 #define ALLOCATE(type, count) \
     ((type*)reallocate(NULL, 0, sizeof(type) * (size_t)(count)))
 
-#endif /* GLANG_MEMORY_H */
+#endif /* SOLV_MEMORY_H */

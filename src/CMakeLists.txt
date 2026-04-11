@@ -34,9 +34,9 @@ set(
 )
 
 add_executable(
-    glang
+    solv
         ${SRC_FILES}
         ${HEADER_FILES}
 )
 
-target_link_libraries(glang m)
+target_link_libraries(solv m)

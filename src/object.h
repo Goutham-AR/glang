@@ -1,5 +1,5 @@
-#ifndef GLANG_OBJECT_H
-#define GLANG_OBJECT_H
+#ifndef SOLV_OBJECT_H
+#define SOLV_OBJECT_H
 
 #include "common.h"
 #include "value.h"
@@ -38,4 +38,4 @@ u32        hash_string(const char* key, int length);
 ObjString* copy_string(const char* chars, int length);
 ObjString* take_string(char* chars, int length);
 
-#endif /* GLANG_OBJECT_H */
+#endif /* SOLV_OBJECT_H */

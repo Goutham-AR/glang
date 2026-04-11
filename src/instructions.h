@@ -1,5 +1,5 @@
-#ifndef GLANG_INSTRUCTIONS_H
-#define GLANG_INSTRUCTIONS_H
+#ifndef SOLV_INSTRUCTIONS_H
+#define SOLV_INSTRUCTIONS_H
 
 #include "common.h"
 
@@ -33,4 +33,4 @@ typedef enum {
 static inline u8     to_u8(OpCode code) { return (u8)code;    }
 static inline OpCode to_op(u8 byte)     { return (OpCode)byte; }
 
-#endif /* GLANG_INSTRUCTIONS_H */
+#endif /* SOLV_INSTRUCTIONS_H */

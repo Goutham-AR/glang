@@ -1,5 +1,5 @@
-#ifndef GLANG_VM_H
-#define GLANG_VM_H
+#ifndef SOLV_VM_H
+#define SOLV_VM_H
 
 #include "common.h"
 #include "bytecode.h"
@@ -17,4 +17,4 @@ typedef struct {
 
 Result interpret(const char* source);
 
-#endif /* GLANG_VM_H */
+#endif /* SOLV_VM_H */

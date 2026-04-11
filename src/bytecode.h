@@ -1,5 +1,5 @@
-#ifndef GLANG_BYTECODE_H
-#define GLANG_BYTECODE_H
+#ifndef SOLV_BYTECODE_H
+#define SOLV_BYTECODE_H
 
 #include "common.h"
 #include "instructions.h"
@@ -19,4 +19,4 @@ void bytecode_write_byte(ByteCode* bc, u8 byte, int line);
 void bytecode_write_opcode(ByteCode* bc, OpCode code, int line);
 int  bytecode_add_constant(ByteCode* bc, Value value);
 
-#endif /* GLANG_BYTECODE_H */
+#endif /* SOLV_BYTECODE_H */

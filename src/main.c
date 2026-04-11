@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
     } else if (argc == 2) {
         run_file(argv[1]);
     } else {
-        printf("Usage: glang [path]");
+        printf("Usage: solv [path]");
         return 64;
     }
     return 0;

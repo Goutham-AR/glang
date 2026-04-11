@@ -1,5 +1,5 @@
-#ifndef GLANG_VALUE_H
-#define GLANG_VALUE_H
+#ifndef SOLV_VALUE_H
+#define SOLV_VALUE_H
 
 #include "common.h"
 #include "memory.h"
@@ -55,4 +55,4 @@ void value_array_free(ValueArray* array);
 void value_print(Value value);
 bool values_equal(Value a, Value b);
 
-#endif /* GLANG_VALUE_H */
+#endif /* SOLV_VALUE_H */

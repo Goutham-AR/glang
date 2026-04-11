@@ -1,12 +1,12 @@
 // =============================================
-//  glang Demo Program
+//  solv Demo Program
 // =============================================
 
 // --- Variables & Basic Output ---
-print "=== Welcome to glang! ===";
+print "=== Welcome to solv! ===";
 print "";
 
-def language = "glang";
+def language = "solv";
 def version = 1;
 print "Language: " + language;
 
@@ -107,7 +107,7 @@ print outer;
 // --- FizzBuzz (1 to 20) ---
 print "=== FizzBuzz ===";
 for (def i = 1; i <= 20; i = i + 1) {
-  // glang doesn't have modulo, so we use a counter approach
+  // solv doesn't have modulo, so we use a counter approach
   def fizz = false;
   def buzz = false;
 

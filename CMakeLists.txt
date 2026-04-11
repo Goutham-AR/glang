@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(
-    glang
+    solv
     DESCRIPTION "A Programming Language"
     LANGUAGES C
     VERSION 0.1.0

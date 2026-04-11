@@ -1,5 +1,5 @@
-#ifndef GLANG_COMMON_H
-#define GLANG_COMMON_H
+#ifndef SOLV_COMMON_H
+#define SOLV_COMMON_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -23,4 +23,4 @@ typedef enum {
 /* DEBUG_BREAK is intentionally left empty (matches original behaviour) */
 #define DEBUG_BREAK()
 
-#endif /* GLANG_COMMON_H */
+#endif /* SOLV_COMMON_H */

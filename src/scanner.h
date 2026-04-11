@@ -1,5 +1,5 @@
-#ifndef GLANG_SCANNER_H
-#define GLANG_SCANNER_H
+#ifndef SOLV_SCANNER_H
+#define SOLV_SCANNER_H
 
 #include "common.h"
 
@@ -43,4 +43,4 @@ typedef struct {
 void  scanner_init(Scanner* scanner, const char* source);
 Token scanner_scan_token(Scanner* scanner);
 
-#endif /* GLANG_SCANNER_H */
+#endif /* SOLV_SCANNER_H */

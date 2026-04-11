@@ -1,5 +1,5 @@
-#ifndef GLANG_COMPILER_H
-#define GLANG_COMPILER_H
+#ifndef SOLV_COMPILER_H
+#define SOLV_COMPILER_H
 
 #include "common.h"
 #include "scanner.h"
@@ -22,4 +22,4 @@ extern Compiler* g_current;
 
 bool compile(const char* source, ByteCode* bytecode);
 
-#endif /* GLANG_COMPILER_H */
+#endif /* SOLV_COMPILER_H */

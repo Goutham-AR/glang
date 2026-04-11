@@ -1,5 +1,5 @@
-#ifndef GLANG_PARSER_H
-#define GLANG_PARSER_H
+#ifndef SOLV_PARSER_H
+#define SOLV_PARSER_H
 
 #include "common.h"
 #include "scanner.h"
@@ -60,4 +60,4 @@ void parser_parse_precedence(Parser* parser, Precedence precedence);
 void parser_declaration(Parser* parser);
 void parser_statement(Parser* parser);
 
-#endif /* GLANG_PARSER_H */
+#endif /* SOLV_PARSER_H */

@@ -1,2 +1,2 @@
-# glang
+# solv
 A general purpose programming language
